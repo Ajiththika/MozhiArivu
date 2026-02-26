@@ -1,0 +1,16 @@
+# IDEs
+.idea/
+.vscode/
+
+# Ignore backend node_modules and builds just in case git is initialized at root
+backend/node_modules/
+backend/.next/
+backend/out/
+backend/build/
+backend/.env
+backend/.env.local
+backend/.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
