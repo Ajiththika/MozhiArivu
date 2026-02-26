@@ -1,17 +1,33 @@
-// f:\Uki\Final Project\Tamil Learning Platform\backend\app\api\auth\me\route.js
 import { NextResponse } from 'next/server';
-import { connectDB } from '@/Database/db';
-import { authenticate } from '@/middleware/authenticate';
-import { me } from '@/controllers/authController';
+import { connectDB } from '../../../../config/db';
+import User from '../../../../models/User';
+import { authenticate } from '../../../../middleware/authenticate';
 
 export async function GET(request) {
-    await connectDB();
+    try {
+        await connectDB();
 
-    const { user, error: authError } = await authenticate(request);
-    if (authError) return NextResponse.json({ error: authError }, { status: 401 });
+        // 1. Verify token
+        const authResult = authenticate(request);
+        if (authResult.error) {
+            return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+        }
 
-    const { data, error, status: ctrlStatus } = await me(request, user);
-    if (error) return NextResponse.json({ error }, { status: ctrlStatus });
+        // 2. Extract user ID (sub) and role from token
+        const { sub, role } = authResult.user;
 
-    return NextResponse.json({ ...data }, { status: ctrlStatus });
+        // 3. Find user in the database
+        const user = await User.findById(sub);
+
+        if (!user) {
+            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+
+        // 4. Return user data (password is already excluded via select: false)
+        return NextResponse.json({ user }, { status: 200 });
+
+    } catch (error) {
+        console.error("Me Route Error:", error);
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    }
 }

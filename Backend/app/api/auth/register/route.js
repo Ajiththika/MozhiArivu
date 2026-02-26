@@ -1,25 +1,23 @@
-// f:\Uki\Final Project\Tamil Learning Platform\backend\app\api\auth\register\route.js
 import { NextResponse } from 'next/server';
-import { connectDB } from '@/Database/db';
-import { rateLimit } from '@/middleware/rateLimiter';
-import { register } from '@/controllers/authController';
-import { accessTokenCookie, refreshTokenCookie } from '@/config/cookieConfig';
+import { connectDB } from '../../../../config/db';
+import { registerService } from '../../../../services/authService';
 
 export async function POST(request) {
-    await connectDB();
+    try {
+        await connectDB();
 
-    const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
-    const { limited, retryAfter } = await rateLimit(ip, 'register', 5, 900);
-    if (limited) return NextResponse.json(
-        { error: 'Too many requests.' },
-        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
-    );
+        const body = await request.json();
 
-    const { data, error, status: ctrlStatus } = await register(request, ip);
-    if (error) return NextResponse.json({ error }, { status: ctrlStatus });
+        // Pass data to service
+        const { data, error, status } = await registerService(body);
 
-    const response = NextResponse.json({ ...data }, { status: ctrlStatus });
-    if (data.accessToken) response.cookies.set({ ...accessTokenCookie, value: data.accessToken });
-    if (data.refreshToken) response.cookies.set({ ...refreshTokenCookie, value: data.refreshToken });
-    return response;
+        if (error) {
+            return NextResponse.json({ error }, { status: status || 400 });
+        }
+
+        return NextResponse.json(data, { status: 201 });
+    } catch (error) {
+        console.error("Register Error:", error);
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    }
 }
