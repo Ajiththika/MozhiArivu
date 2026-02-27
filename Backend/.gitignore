@@ -11,6 +11,11 @@ backend/.env
 backend/.env.local
 backend/.env.*.local
 
-# OS files
-.DS_Store
-Thumbs.db
+.env
+package-lock.json
+package.json
+
+node_modules/
+.next/
+
+

@@ -1,4 +1,4 @@
-import User from '../models/User';
+import User from './models/User';
 import { hashPassword, comparePassword } from '../lib/hash';
 import { generateToken } from '../lib/jwt';
 
