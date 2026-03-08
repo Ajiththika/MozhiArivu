@@ -1,0 +1,50 @@
+import * as tutorService from '../services/tutorService.js';
+
+export async function listAvailableTutors(req, res, next) {
+    try {
+        const tutors = await tutorService.getAvailableTutors();
+        res.json({ tutors });
+    } catch (e) { next(e); }
+}
+
+export async function requestTutor(req, res, next) {
+    try {
+        const request = await tutorService.createRequest(req.user.sub, req.body);
+        res.status(201).json({ message: 'Request sent to tutor. 10 credits deducted.', request });
+    } catch (e) { next(e); }
+}
+
+export async function getLearnerRequests(req, res, next) {
+    try {
+        const requests = await tutorService.getStudentRequests(req.user.sub);
+        res.json({ requests });
+    } catch (e) { next(e); }
+}
+
+export async function getTutorPendingRequests(req, res, next) {
+    try {
+        const requests = await tutorService.getTutorRequests(req.user.sub, 'pending');
+        res.json({ requests });
+    } catch (e) { next(e); }
+}
+
+export async function acceptRequest(req, res, next) {
+    try {
+        const request = await tutorService.updateRequestStatus(req.user.sub, req.params.id, 'accepted');
+        res.json({ message: 'Request accepted.', request });
+    } catch (e) { next(e); }
+}
+
+export async function declineRequest(req, res, next) {
+    try {
+        const request = await tutorService.updateRequestStatus(req.user.sub, req.params.id, 'declined');
+        res.json({ message: 'Request declined. Credits refunded to user.', request });
+    } catch (e) { next(e); }
+}
+
+export async function resolveRequest(req, res, next) {
+    try {
+        const request = await tutorService.resolveRequest(req.user.sub, req.params.id, req.body.response);
+        res.json({ message: 'Request resolved and response sent.', request });
+    } catch (e) { next(e); }
+}
