@@ -2,13 +2,30 @@ import User from '../models/User.js';
 import TutorRequest from '../models/TutorRequest.js';
 
 export async function getAvailableTutors() {
-    return User.find({ isTutorAvailable: true })
-        .select('name bio experience specialization hourlyRate email');
+    return User.find({ role: 'teacher', isActive: true, isTutorAvailable: true })
+        .select('name bio experience specialization hourlyRate languages email');
+}
+
+export async function updateTutorProfile(teacherId, data) {
+    const tutor = await User.findByIdAndUpdate(
+        teacherId,
+        { $set: data },
+        { new: true, runValidators: true }
+    ).select('-password -resetPasswordToken -resetPasswordExpires');
+    return tutor;
+}
+
+export async function updateTutorAvailability(teacherId, isAvailable) {
+    return User.findByIdAndUpdate(
+        teacherId,
+        { $set: { isTutorAvailable: isAvailable } },
+        { new: true }
+    ).select('-password -resetPasswordToken -resetPasswordExpires');
 }
 
 export async function createRequest(studentId, data) {
-    const tutor = await User.findById(data.tutorId);
-    if (!tutor || !tutor.isTutorAvailable) {
+    const tutor = await User.findById(data.teacherId);
+    if (!tutor || tutor.role !== 'teacher' || !tutor.isTutorAvailable || !tutor.isActive) {
         const err = new Error('Tutor not found or not available.'); err.status = 404; err.code = 'UNAVAILABLE_TUTOR'; throw err;
     }
 
@@ -28,30 +45,30 @@ export async function createRequest(studentId, data) {
 
     return TutorRequest.create({
         studentId,
-        tutorId: data.tutorId,
+        teacherId: data.teacherId,
         lessonId: data.lessonId,
-        questionText: data.questionText,
+        question: data.question,
         priceCredits, // Keep historical record of what was paid
     });
 }
 
 export async function getStudentRequests(studentId) {
-    return TutorRequest.find({ studentId }).populate('tutorId', 'name email').sort('-createdAt');
+    return TutorRequest.find({ studentId }).populate('teacherId', 'name email').sort('-createdAt');
 }
 
-export async function getTutorRequests(tutorId, status) {
-    const query = { tutorId };
+export async function getTutorRequests(teacherId, status) {
+    const query = { teacherId };
     if (status) query.status = status;
     return TutorRequest.find(query).populate('studentId', 'name email').sort('createdAt');
 }
 
-export async function updateRequestStatus(tutorId, requestId, status) {
+export async function updateRequestStatus(teacherId, requestId, status) {
     const request = await TutorRequest.findById(requestId);
     if (!request) {
         const err = new Error('Request not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
     }
 
-    if (request.tutorId.toString() !== tutorId.toString()) {
+    if (request.teacherId.toString() !== teacherId.toString()) {
         const err = new Error('Unauthorized.'); err.status = 403; err.code = 'FORBIDDEN'; throw err;
     }
 
@@ -70,21 +87,21 @@ export async function updateRequestStatus(tutorId, requestId, status) {
     return request;
 }
 
-export async function resolveRequest(tutorId, requestId, responseText) {
+export async function resolveRequest(teacherId, requestId, responseText) {
     const request = await TutorRequest.findById(requestId);
-    if (!request || request.tutorId.toString() !== tutorId.toString()) {
+    if (!request || request.teacherId.toString() !== teacherId.toString()) {
         const err = new Error('Request not found or unauthorized'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
     }
 
-    if (request.status !== 'accepted') {
-        const err = new Error('Only accepted requests can be resolved'); err.status = 400; err.code = 'INVALID_STATE'; throw err;
+    if (request.status !== 'accepted' && request.status !== 'answered') {
+        const err = new Error('Only accepted or answered requests can be resolved'); err.status = 400; err.code = 'INVALID_STATE'; throw err;
     }
 
     request.status = 'resolved';
-    request.tutorResponse = responseText;
+    request.teacherAnswer = responseText;
 
     // Distribute paid credits to tutor's balance
-    await User.findByIdAndUpdate(tutorId, { $inc: { credits: request.priceCredits } });
+    await User.findByIdAndUpdate(teacherId, { $inc: { credits: request.priceCredits } });
 
     await request.save();
     return request;

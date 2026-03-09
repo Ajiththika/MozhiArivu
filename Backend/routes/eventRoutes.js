@@ -25,8 +25,8 @@ router.get('/', authenticate, eventController.listUpcomingEvents);
 router.post('/:id/join', authenticate, eventController.joinEvent);
 
 // Admin actions
-router.post('/', authenticate, requireRole('admin', 'superadmin'), validate(createEventSchema), eventController.createEvent);
-router.patch('/:id', authenticate, requireRole('admin', 'superadmin'), validate(updateEventSchema), eventController.updateEvent);
-router.delete('/:id', authenticate, requireRole('admin', 'superadmin'), eventController.deleteEvent);
+router.post('/', authenticate, requireRole('admin'), validate(createEventSchema), eventController.createEvent);
+router.patch('/:id', authenticate, requireRole('admin'), validate(updateEventSchema), eventController.updateEvent);
+router.delete('/:id', authenticate, requireRole('admin'), eventController.deleteEvent);
 
 export default router;

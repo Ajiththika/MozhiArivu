@@ -5,18 +5,17 @@ import { requireRole } from '../middleware/rbac.js';
 
 const router = Router();
 
-// Retrieve all users (admins and superadmins can view)
-router.get('/users', authenticate, requireRole('admin', 'superadmin'), adminController.getUsers);
+// Retrieve all users (admins can view)
+router.get('/users', authenticate, requireRole('admin'), adminController.getUsers);
 
-// Retrieve all tutors (admins and superadmins can view)
-router.get('/tutors', authenticate, requireRole('admin', 'superadmin'), adminController.getTutors);
+// Retrieve all tutors (admins can view)
+router.get('/tutors', authenticate, requireRole('admin'), adminController.getTutors);
 
-// Superadmin functions
-router.patch('/users/:id/deactivate', authenticate, requireRole('superadmin'), adminController.deactivateUser);
-router.patch('/users/:id/activate', authenticate, requireRole('superadmin'), adminController.activateUser);
-router.patch('/users/:id/verify-admin', authenticate, requireRole('superadmin'), adminController.verifyAdmin);
+// Admin functions
+router.patch('/users/:id/deactivate', authenticate, requireRole('admin'), adminController.deactivateUser);
+router.patch('/users/:id/activate', authenticate, requireRole('admin'), adminController.activateUser);
 
-// Admin / Superadmin functions
-router.patch('/users/:id/tutor-status', authenticate, requireRole('admin', 'superadmin'), adminController.changeTutorStatus);
+// Admin functions
+router.patch('/users/:id/tutor-status', authenticate, requireRole('admin'), adminController.changeTutorStatus);
 
 export default router;

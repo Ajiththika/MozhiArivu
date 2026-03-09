@@ -6,13 +6,13 @@ dotenv.config();
 
 const usersToSeed = [
     {
-        name: 'Super Admin',
+        name: 'Admin 1',
         email: 'ajiththika17@gmail.com',
         password: 'Ajiththika17',
-        role: 'superadmin'
+        role: 'admin'
     },
     {
-        name: 'Admin',
+        name: 'Admin 2',
         email: 'ajieajiththi@gmail.com',
         password: 'Ajie5317',
         role: 'admin'

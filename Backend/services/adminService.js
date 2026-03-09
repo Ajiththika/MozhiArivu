@@ -19,18 +19,7 @@ export async function setUserActiveStatus(userId, status) {
     return user;
 }
 
-export async function setAdminVerified(userId, status) {
-    const user = await User.findById(userId);
-    if (!user) {
-        const err = new Error('User not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
-    }
-    if (user.role !== 'admin') {
-        const err = new Error('User is not an admin'); err.status = 400; err.code = 'INVALID_ROLE'; throw err;
-    }
-    user.isVerifiedAdmin = status;
-    await user.save();
-    return user;
-}
+
 
 export async function setTutorStatus(userId, status) {
     const user = await User.findById(userId);

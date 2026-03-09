@@ -7,6 +7,20 @@ export async function listAvailableTutors(req, res, next) {
     } catch (e) { next(e); }
 }
 
+export async function updateTutorProfile(req, res, next) {
+    try {
+        const tutor = await tutorService.updateTutorProfile(req.user.sub, req.body);
+        res.json({ message: 'Profile updated.', tutor });
+    } catch (e) { next(e); }
+}
+
+export async function updateTutorAvailability(req, res, next) {
+    try {
+        const tutor = await tutorService.updateTutorAvailability(req.user.sub, req.body.isTutorAvailable);
+        res.json({ message: 'Availability updated.', isTutorAvailable: tutor.isTutorAvailable });
+    } catch (e) { next(e); }
+}
+
 export async function requestTutor(req, res, next) {
     try {
         const request = await tutorService.createRequest(req.user.sub, req.body);

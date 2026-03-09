@@ -7,13 +7,26 @@ import { z } from 'zod';
 const router = Router();
 
 const requestTutorSchema = z.object({
-    tutorId: z.string().min(1, 'Tutor ID needed'),
+    teacherId: z.string().min(1, 'Teacher ID needed'),
     lessonId: z.string().optional(),
-    questionText: z.string().min(1, 'Question text cannot be empty'),
+    question: z.string().min(1, 'Question text cannot be empty'),
 }).strict();
 
 const respondTutorSchema = z.object({
     response: z.string().min(1, 'Response text cannot be empty'),
+}).strict();
+
+const updateTutorProfileSchema = z.object({
+    bio: z.string().optional(),
+    experience: z.string().optional(),
+    specialization: z.string().optional(),
+    schedule: z.any().optional(),
+    hourlyRate: z.number().min(0).optional(),
+    languages: z.array(z.string()).optional()
+}).strict();
+
+const updateAvailabilitySchema = z.object({
+    isTutorAvailable: z.boolean()
 }).strict();
 
 // ── Public (Learner) ────────────────────────────────────────────────────────
@@ -27,10 +40,16 @@ router.post('/request', authenticate, validate(requestTutorSchema), tutorControl
 router.get('/my-requests', authenticate, tutorController.getLearnerRequests);
 
 // ── Tutor Specific ──────────────────────────────────────────────────────────
+import { requireRole } from '../middleware/rbac.js';
+
+// Update tutor profile
+router.patch('/me', authenticate, requireRole('teacher'), validate(updateTutorProfileSchema), tutorController.updateTutorProfile);
+router.patch('/me/availability', authenticate, requireRole('teacher'), validate(updateAvailabilitySchema), tutorController.updateTutorAvailability);
+
 // These endpoint implementations implicitly check if req.user is the assigned tutor
-router.get('/pending', authenticate, tutorController.getTutorPendingRequests);
-router.patch('/requests/:id/accept', authenticate, tutorController.acceptRequest);
-router.patch('/requests/:id/decline', authenticate, tutorController.declineRequest);
-router.patch('/requests/:id/resolve', authenticate, validate(respondTutorSchema), tutorController.resolveRequest);
+router.get('/pending', authenticate, requireRole('teacher'), tutorController.getTutorPendingRequests);
+router.patch('/requests/:id/accept', authenticate, requireRole('teacher'), tutorController.acceptRequest);
+router.patch('/requests/:id/decline', authenticate, requireRole('teacher'), tutorController.declineRequest);
+router.patch('/requests/:id/resolve', authenticate, requireRole('teacher'), validate(respondTutorSchema), tutorController.resolveRequest);
 
 export default router;

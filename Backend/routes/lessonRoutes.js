@@ -46,10 +46,10 @@ router.get('/:id/questions', authenticate, lessonController.getLessonQuestions);
 router.post('/:id/submit', authenticate, validate(submitAnswersSchema), lessonController.submitAnswers);
 
 // ── Admin Endpoints ───────────────────────────────────────────────────────────
-router.post('/', authenticate, requireRole('admin', 'superadmin'), validate(createLessonSchema), lessonController.createLesson);
-router.patch('/:id', authenticate, requireRole('admin', 'superadmin'), validate(updateLessonSchema), lessonController.updateLesson);
-router.delete('/:id', authenticate, requireRole('admin', 'superadmin'), lessonController.deleteLesson);
+router.post('/', authenticate, requireRole('admin'), validate(createLessonSchema), lessonController.createLesson);
+router.patch('/:id', authenticate, requireRole('admin'), validate(updateLessonSchema), lessonController.updateLesson);
+router.delete('/:id', authenticate, requireRole('admin'), lessonController.deleteLesson);
 
-router.post('/:id/questions', authenticate, requireRole('admin', 'superadmin'), validate(createQuestionSchema), lessonController.createQuestion);
+router.post('/:id/questions', authenticate, requireRole('admin'), validate(createQuestionSchema), lessonController.createQuestion);
 
 export default router;

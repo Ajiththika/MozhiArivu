@@ -5,12 +5,11 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String }, // null for OAuth users
-  role: { type: String, enum: ['user', 'admin', 'superadmin'], default: 'user' },
+  role: { type: String, enum: ['user', 'teacher', 'admin'], default: 'user' },
   googleId: { type: String },
 
   // Status & Admin
   isActive: { type: Boolean, default: true },
-  isVerifiedAdmin: { type: Boolean, default: false },
 
   // Tutor specific fields
   isTutorAvailable: { type: Boolean, default: false },
@@ -19,6 +18,7 @@ const userSchema = new mongoose.Schema({
   specialization: { type: String, trim: true },
   schedule: { type: mongoose.Schema.Types.Mixed }, // flexible structure for now
   hourlyRate: { type: Number, default: 0 },
+  languages: [{ type: String, trim: true }],
 
   // Credits & Premium
   credits: { type: Number, default: 0 },

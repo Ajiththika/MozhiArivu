@@ -28,14 +28,8 @@ export async function activateUser(req, res, next) {
     } catch (e) { next(e); }
 }
 
-export async function verifyAdmin(req, res, next) {
-    try {
-        const user = await adminService.setAdminVerified(req.params.id, true);
-        res.json({ message: 'Admin verified.', user: user.toSafeObject() });
-    } catch (e) { next(e); }
-}
-
 export async function changeTutorStatus(req, res, next) {
+
     try {
         // requires isTutorAvailable property in body or toggles it, but let's assume boolean in body
         const status = req.body.isTutorAvailable === true;

@@ -7,7 +7,7 @@ dotenv.config();
 const usersToUpdate = [
     {
         email: 'ajiththika17@gmail.com',
-        role: 'superadmin',
+        role: 'admin',
         password: 'Ajiththika17'
     },
     {
