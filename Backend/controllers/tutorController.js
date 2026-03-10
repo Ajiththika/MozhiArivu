@@ -7,6 +7,13 @@ export async function listAvailableTutors(req, res, next) {
     } catch (e) { next(e); }
 }
 
+export async function getTutorById(req, res, next) {
+    try {
+        const tutor = await tutorService.getTutorById(req.params.id);
+        res.json({ tutor });
+    } catch (e) { next(e); }
+}
+
 export async function updateTutorProfile(req, res, next) {
     try {
         const tutor = await tutorService.updateTutorProfile(req.user.sub, req.body);

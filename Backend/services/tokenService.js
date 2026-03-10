@@ -79,5 +79,9 @@ export function setRefreshCookie(res, token) {
 }
 
 export function clearRefreshCookie(res) {
-    res.clearCookie('rt');
+    res.clearCookie('rt', {
+        httpOnly: true,
+        secure: process.env.COOKIE_SECURE === 'true',
+        sameSite: process.env.COOKIE_SAMESITE || 'lax',
+    });
 }

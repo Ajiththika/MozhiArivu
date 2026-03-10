@@ -46,3 +46,16 @@ export async function changeUserPassword(userId, currentPassword, newPassword) {
     // Revoke all existing sessions so that user must log in again
     await Session.updateMany({ userId: user._id }, { revoked: true });
 }
+
+export async function deactivateUserAccount(userId) {
+    const user = await User.findById(userId);
+    if (!user) {
+        const err = new Error('User not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
+    }
+
+    user.isActive = false;
+    await user.save();
+
+    // Revoke all sessions
+    await Session.updateMany({ userId: user._id }, { revoked: true });
+}

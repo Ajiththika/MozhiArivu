@@ -31,7 +31,10 @@ const updateAvailabilitySchema = z.object({
 
 // ── Public (Learner) ────────────────────────────────────────────────────────
 // Browse available tutors (from User model where isTutorAvailable is true)
-router.get('/available', authenticate, tutorController.listAvailableTutors);
+router.get('/', authenticate, tutorController.listAvailableTutors);
+
+// Get specific tutor by ID
+router.get('/:id', authenticate, tutorController.getTutorById);
 
 // Request a tutor's help
 router.post('/request', authenticate, validate(requestTutorSchema), tutorController.requestTutor);

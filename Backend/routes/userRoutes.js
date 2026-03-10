@@ -22,5 +22,6 @@ const updatePasswordSchema = z.object({
 router.get('/me', authenticate, userController.getProfile);
 router.patch('/me', authenticate, validate(updateProfileSchema), userController.updateProfile);
 router.patch('/me/password', authenticate, validate(updatePasswordSchema), userController.updatePassword);
+router.patch('/me/deactivate', authenticate, userController.deactivateAccount);
 
 export default router;
