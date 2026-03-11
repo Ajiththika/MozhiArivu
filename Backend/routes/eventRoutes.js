@@ -1,32 +1,119 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import * as eventController from '../controllers/eventController.js';
 import { authenticate } from '../middleware/auth.js';
 import { requireRole } from '../middleware/rbac.js';
 import { validate } from '../middleware/validate.js';
-import { z } from 'zod';
 
 const router = Router();
 
-const createEventSchema = z.object({
-    title: z.string().min(1, 'Title is required'),
-    description: z.string().optional(),
-    date: z.string().datetime('Must be a valid ISO datetime'),
-    durationMinutes: z.number().int().positive().optional(),
-    meetLink: z.string().url().optional(),
-    isPremiumOnly: z.boolean().optional(),
-}).strict();
+// ── Validation Schemas ────────────────────────────────────────────────────────
 
-const updateEventSchema = createEventSchema.partial();
+const createEventSchema = z
+    .object({
+        eventCode: z
+            .string({ required_error: 'Event code is required.' })
+            .trim()
+            .min(1, 'Event code cannot be empty.'),
+        title: z
+            .string({ required_error: 'Title is required.' })
+            .trim()
+            .min(1, 'Title cannot be empty.'),
+        description: z
+            .string({ required_error: 'Description is required.' })
+            .trim()
+            .min(1, 'Description cannot be empty.'),
+        date: z
+            .string({ required_error: 'Date is required.' })
+            .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format.'),
+        time: z
+            .string({ required_error: 'Time is required.' })
+            .regex(/^\d{2}:\d{2}$/, 'Time must be in HH:mm format.'),
+        capacity: z
+            .number({ required_error: 'Capacity is required.' })
+            .int('Capacity must be a whole number.')
+            .positive('Capacity must be a positive number.'),
+        location: z
+            .string({ required_error: 'Location is required.' })
+            .trim()
+            .min(1, 'Location cannot be empty.'),
+    })
+    .strict();
 
-// Browse upcoming events
-router.get('/', authenticate, eventController.listUpcomingEvents);
+const updateEventSchema = z
+    .object({
+        title: z.string().trim().min(1, 'Title cannot be empty.').optional(),
+        description: z.string().trim().min(1, 'Description cannot be empty.').optional(),
+        date: z
+            .string()
+            .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format.')
+            .optional(),
+        time: z
+            .string()
+            .regex(/^\d{2}:\d{2}$/, 'Time must be in HH:mm format.')
+            .optional(),
+        capacity: z
+            .number()
+            .int('Capacity must be a whole number.')
+            .positive('Capacity must be a positive number.')
+            .optional(),
+        location: z.string().trim().min(1, 'Location cannot be empty.').optional(),
+        isActive: z.boolean().optional(),
+    })
+    .strict();
 
-// Join an event
-router.post('/:id/join', authenticate, eventController.joinEvent);
+const joinRequestSchema = z
+    .object({
+        message: z.string().trim().max(500, 'Message cannot exceed 500 characters.').optional(),
+    })
+    .strict();
 
-// Admin actions
-router.post('/', authenticate, requireRole('admin'), validate(createEventSchema), eventController.createEvent);
-router.patch('/:id', authenticate, requireRole('admin'), validate(updateEventSchema), eventController.updateEvent);
-router.delete('/:id', authenticate, requireRole('admin'), eventController.deleteEvent);
+// ── Public / Authenticated Routes ─────────────────────────────────────────────
+
+// GET /api/events — list all active events
+router.get('/', authenticate, eventController.listEvents);
+
+// GET /api/events/my-requests — logged-in user's own join requests
+// NOTE: must be declared BEFORE /:id to avoid "my-requests" being treated as an id
+router.get('/my-requests', authenticate, eventController.getMyJoinRequests);
+
+// GET /api/events/:id — single event detail
+router.get('/:id', authenticate, eventController.getEvent);
+
+// POST /api/events/:id/join-request — submit a join request
+router.post(
+    '/:id/join-request',
+    authenticate,
+    validate(joinRequestSchema),
+    eventController.submitJoinRequest
+);
+
+// ── Admin Routes ──────────────────────────────────────────────────────────────
+
+// POST /api/events — create event
+router.post(
+    '/',
+    authenticate,
+    requireRole('admin', 'teacher'),
+    validate(createEventSchema),
+    eventController.createEvent
+);
+
+// PATCH /api/events/:id — update event
+router.patch(
+    '/:id',
+    authenticate,
+    requireRole('admin', 'teacher'),
+    validate(updateEventSchema),
+    eventController.updateEvent
+);
+
+// DELETE /api/events/:id — soft-delete event
+router.delete(
+    '/:id',
+    authenticate,
+    requireRole('admin'),
+    eventController.deleteEvent
+);
 
 export default router;
