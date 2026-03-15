@@ -88,40 +88,7 @@ const stats = [
   { value: "95%", label: "Satisfaction Rate" },
 ];
 
-const team = [
-  {
-    initials: "AK",
-    name: "Aravind Kumar",
-    role: "Founder & CEO",
-    bio: "Tamil scholar and software engineer passionate about keeping classical languages alive through modern technology.",
-    bg: "bg-[#E0E7FF]",
-    text: "text-[#3730A3]",
-  },
-  {
-    initials: "MP",
-    name: "Meena Priya",
-    role: "Head of Curriculum",
-    bio: "20+ years of Tamil teaching experience. Designed the structured lesson framework used across the platform.",
-    bg: "bg-[#DCFCE7]",
-    text: "text-[#166534]",
-  },
-  {
-    initials: "SK",
-    name: "Senthil Kannan",
-    role: "Lead Engineer",
-    bio: "Full-stack developer who built the interactive lesson engine, voice practice tools, and gamification system.",
-    bg: "bg-[#FCE7F3]",
-    text: "text-[#9D174D]",
-  },
-  {
-    initials: "VR",
-    name: "Vimala Raj",
-    role: "Community Lead",
-    bio: "Organises cultural events worldwide and builds meaningful connections between Tamil learners and native speakers.",
-    bg: "bg-[#FEF3C7]",
-    text: "text-[#92400E]",
-  },
-];
+
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -373,38 +340,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── 7. Team ─────────────────────────────────────────────── */}
-        <section className="py-24 bg-white px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light-blue text-sm font-semibold text-primary mb-4">
-                OUR TEAM
-              </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-accent-text mb-4">
-                The People Behind Mozhi Aruvi
-              </h2>
-              <p className="text-lg text-muted max-w-2xl mx-auto">
-                A small, dedicated team united by a deep love for Tamil language, culture, and education.
-              </p>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {team.map((member) => (
-                <div
-                  key={member.name}
-                  className="bg-soft-bg rounded-2xl p-8 border border-border-color hover:border-primary/30 hover:shadow-xl transition-all duration-300 group text-center"
-                >
-                  <div className={`w-20 h-20 rounded-full ${member.bg} ${member.text} flex items-center justify-center font-black text-2xl mx-auto mb-6 shadow-sm group-hover:scale-110 transition-transform`}>
-                    {member.initials}
-                  </div>
-                  <h3 className="text-lg font-bold text-accent-text mb-1">{member.name}</h3>
-                  <p className="text-sm font-semibold text-primary mb-4">{member.role}</p>
-                  <p className="text-muted text-sm leading-relaxed">{member.bio}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* ── 8. Final CTA ────────────────────────────────────────── */}
         <section className="py-28 bg-soft-bg px-4 sm:px-6 lg:px-8 relative overflow-hidden">
